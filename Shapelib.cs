@@ -18,7 +18,6 @@ namespace Mercator.GIS.Map.Tools
 
     public class Shapelib
     {
-
         /// <summary>
         /// Shape type enumeration
         /// </summary>
@@ -560,6 +559,20 @@ namespace Mercator.GIS.Map.Tools
         public static extern double DBFReadDoubleAttribute(IntPtr hDBF, int iShape, int iField);
 
         /// <summary>
+        /// DBFReadStringAttributeEx 读取字段值并以字符串形式返回
+        /// </summary>
+        /// <param name="hDBF">文件访问句柄</param>
+        /// <param name="iShape">图号</param>
+        /// <param name="iField">字段号</param>
+        /// <returns>字符串形式的字段值</returns>
+        public static string DBFReadStringAttributeEx(IntPtr hDBF, int iShape, int iField)
+        {
+            var bytes = Encoding.Unicode.GetBytes(Marshal.PtrToStringUni(DBFReadStringAttribute(hDBF, iShape, iField), 255));
+            var attribute = Encoding.UTF8.GetString(bytes);
+            var index = attribute.IndexOf('\0');
+            return index > 0 ? attribute.Substring(0, index).Trim() : string.Empty;
+        }
+        /// <summary>
         /// The DBFReadStringAttribute() will read the value of one field and return it as a string. 
         /// </summary>
         /// <param name="hDBF">The access handle for the file to be queried, as returned by 
@@ -576,7 +589,7 @@ namespace Mercator.GIS.Map.Tools
         /// trailing space (ASCII 32) characters will be stripped before the string is returned.
         /// </remarks>
         [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern string DBFReadStringAttribute(IntPtr hDBF, int iShape, int iField);
+        public static extern IntPtr DBFReadStringAttribute(IntPtr hDBF, int iShape, int iField);
 
         [DllImport("shapelib.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadLogicalAttribute")]
         private static extern string _DBFReadLogicalAttribute(IntPtr hDBF, int iShape, int iField);
