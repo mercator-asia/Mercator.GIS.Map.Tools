@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mercator.GIS.Map.Tools
+namespace Mercator.ShapeLib
 {
     /// <summary>
     /// .NET Framework wrapper for Shapefile C Library V1.2.10
@@ -135,8 +135,18 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="szAccess">The fopen() style access string. At this time only "rb" (read-only binary) 
         /// and "rb+" (read/write binary) should be used.</param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SHPOpen(string szShapeFile, string szAccess);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPOpen")]
+        private static extern IntPtr SHPOpen64(string szShapeFile, string szAccess);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPOpen")]
+        private static extern IntPtr SHPOpen32(string szShapeFile, string szAccess);
+
+        public static IntPtr SHPOpen(string szShapeFile, string szAccess)
+        {
+            if (IntPtr.Size == 4)
+                return SHPOpen32(szShapeFile, szAccess);
+            else
+                return SHPOpen64(szShapeFile, szAccess);
+        }
 
         /// <summary>
         /// The SHPCreate() function will create a new .shp and .shx file of the desired type.
@@ -146,8 +156,18 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="shpType">The type of shapes to be stored in the newly created file. 
         /// It may be either ShapeType.Point, ShapeType.PolyLine, ShapeType.Polygon or ShapeType.MultiPoint.</param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SHPCreate(string szShapeFile, ShapeType shpType);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreate")]
+        private static extern IntPtr SHPCreate64(string szShapeFile, ShapeType shpType);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreate")]
+        private static extern IntPtr SHPCreate32(string szShapeFile, ShapeType shpType);
+
+        public static IntPtr SHPCreate(string szShapeFile, ShapeType shpType)
+        {
+            if (IntPtr.Size == 4)
+                return SHPCreate32(szShapeFile, shpType);
+            else
+                return SHPCreate64(szShapeFile, shpType);
+        }
 
         /// <summary>
         /// The SHPGetInfo() function retrieves various information about shapefile as a whole. 
@@ -165,9 +185,21 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="adfMaxBound">The X, Y, Z and M maximum values will be placed into this 
         /// four entry array. This may be NULL.</param>
         /// <returns>void</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern void SHPGetInfo(IntPtr hSHP, ref int pnEntities,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPGetInfo")]
+        private static extern void SHPGetInfo64(IntPtr hSHP, ref int pnEntities,
             ref ShapeType pshpType, double[] adfMinBound, double[] adfMaxBound);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPGetInfo")]
+        private static extern void SHPGetInfo32(IntPtr hSHP, ref int pnEntities,
+            ref ShapeType pshpType, double[] adfMinBound, double[] adfMaxBound);
+
+        public static void SHPGetInfo(IntPtr hSHP, ref int pnEntities,
+            ref ShapeType pshpType, double[] adfMinBound, double[] adfMaxBound)
+        {
+            if (IntPtr.Size == 4)
+                SHPGetInfo32(hSHP, ref pnEntities, ref pshpType, adfMinBound, adfMaxBound);
+            else
+                SHPGetInfo64(hSHP, ref pnEntities, ref pshpType, adfMinBound, adfMaxBound);
+        }
 
         /// <summary>
         /// The SHPReadObject() call is used to read a single structure, or entity from the shapefile. 
@@ -188,8 +220,18 @@ namespace Mercator.GIS.Map.Tools
         /// Generally speaking applications should skip rather than preserve them, as they usually 
         /// represented interactively deleted shapes.
         /// </remarks>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SHPReadObject(IntPtr hSHP, int iShape);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPReadObject")]
+        private static extern IntPtr SHPReadObject64(IntPtr hSHP, int iShape);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPReadObject")]
+        private static extern IntPtr SHPReadObject32(IntPtr hSHP, int iShape);
+
+        public static IntPtr SHPReadObject(IntPtr hSHP, int iShape)
+        {
+            if (IntPtr.Size == 4)
+                return SHPReadObject32(hSHP, iShape);
+            else
+                return SHPReadObject64(hSHP, iShape);
+        }
 
         /// <summary>
         /// The SHPWriteObject() call is used to write a single structure, or entity to the shapefile. 
@@ -201,8 +243,18 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="psObject">The shape to write to the file. This should have been created with SHPCreateObject(), 
         /// or SHPCreateSimpleObject().</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int SHPWriteObject(IntPtr hSHP, int iShape, IntPtr psObject);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPWriteObject")]
+        private static extern int SHPWriteObject64(IntPtr hSHP, int iShape, IntPtr psObject);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPWriteObject")]
+        private static extern int SHPWriteObject32(IntPtr hSHP, int iShape, IntPtr psObject);
+
+        public static int SHPWriteObject(IntPtr hSHP, int iShape, IntPtr psObject)
+        {
+            if (IntPtr.Size == 4)
+                return SHPWriteObject32(hSHP, iShape, psObject);
+            else
+                return SHPWriteObject64(hSHP, iShape, psObject);
+        }
 
         /// <summary>
         /// This function should be used to deallocate the resources associated with a SHPObject 
@@ -211,8 +263,18 @@ namespace Mercator.GIS.Map.Tools
         /// </summary>
         /// <param name="psObject">IntPtr of the SHPObject to deallocate memory.</param>
         /// <returns>void</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern void SHPDestroyObject(IntPtr psObject);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPDestroyObject")]
+        private static extern void SHPDestroyObject64(IntPtr psObject);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPDestroyObject")]
+        private static extern void SHPDestroyObject32(IntPtr psObject);
+
+        public static void SHPDestroyObject(IntPtr psObject)
+        {
+            if (IntPtr.Size == 4)
+                SHPDestroyObject32(psObject);
+            else
+                SHPDestroyObject64(psObject);
+        }
 
         /// <summary>
         /// This function will recompute the extents of this shape, replacing the existing values 
@@ -223,8 +285,18 @@ namespace Mercator.GIS.Map.Tools
         /// </summary>
         /// <param name="psObject">An existing shape object to be updated in place.</param>
         /// <returns>void</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern void SHPComputeExtents(IntPtr psObject);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPComputeExtents")]
+        private static extern void SHPComputeExtents64(IntPtr psObject);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPComputeExtents")]
+        private static extern void SHPComputeExtents32(IntPtr psObject);
+
+        public static void SHPComputeExtents(IntPtr psObject)
+        {
+            if (IntPtr.Size == 4)
+                SHPComputeExtents32(psObject);
+            else
+                SHPComputeExtents64(psObject);
+        }
 
         /// <summary>
         /// The SHPCreateObject() function allows for the creation of objects (shapes). 
@@ -252,11 +324,27 @@ namespace Mercator.GIS.Map.Tools
         /// resources associated with an object allocated with SHPCreateObject(). This function 
         /// computes a bounding box for the SHPObject from the given vertices.
         /// </remarks>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SHPCreateObject(ShapeType shpType, int nShapeId,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreateObject")]
+        private static extern IntPtr SHPCreateObject64(ShapeType shpType, int nShapeId,
             int nParts, int[] panPartStart, PartType[] paPartType,
             int nVertices, double[] adfX, double[] adfY,
             double[] adfZ, double[] adfM);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreateObject")]
+        private static extern IntPtr SHPCreateObject32(ShapeType shpType, int nShapeId,
+            int nParts, int[] panPartStart, PartType[] paPartType,
+            int nVertices, double[] adfX, double[] adfY,
+            double[] adfZ, double[] adfM);
+
+        public static IntPtr SHPCreateObject(ShapeType shpType, int nShapeId,
+            int nParts, int[] panPartStart, PartType[] paPartType,
+            int nVertices, double[] adfX, double[] adfY,
+            double[] adfZ, double[] adfM)
+        {
+            if (IntPtr.Size == 4)
+                return SHPCreateObject32(shpType, nShapeId, nParts, panPartStart, paPartType, nVertices, adfX, adfY, adfZ, adfM);
+            else
+                return SHPCreateObject64(shpType, nShapeId, nParts, panPartStart, paPartType, nVertices, adfX, adfY, adfZ, adfM);
+        }
 
         /// <summary>
         /// The SHPCreateSimpleObject() function allows for the convenient creation of simple objects. 
@@ -277,9 +365,21 @@ namespace Mercator.GIS.Map.Tools
         /// The SHPDestroyObject() function should be used to free resources associated with an 
         /// object allocated with SHPCreateSimpleObject().
         /// </remarks>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SHPCreateSimpleObject(ShapeType shpType, int nVertices,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreateSimpleObject")]
+        private static extern IntPtr SHPCreateSimpleObject64(ShapeType shpType, int nVertices,
             double[] adfX, double[] adfY, double[] adfZ);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreateSimpleObject")]
+        private static extern IntPtr SHPCreateSimpleObject32(ShapeType shpType, int nVertices,
+            double[] adfX, double[] adfY, double[] adfZ);
+
+        public static IntPtr SHPCreateSimpleObject(ShapeType shpType, int nVertices,
+            double[] adfX, double[] adfY, double[] adfZ)
+        {
+            if (IntPtr.Size == 4)
+                return SHPCreateSimpleObject32(shpType, nVertices, adfX, adfY, adfZ);
+            else
+                return SHPCreateSimpleObject64(shpType, nVertices, adfX, adfY, adfZ);
+        }
 
         /// <summary>
         /// The SHPClose() function will close the .shp and .shx files, and flush all outstanding header 
@@ -288,24 +388,54 @@ namespace Mercator.GIS.Map.Tools
         /// </summary>
         /// <param name="hSHP">The handle previously returned by SHPOpen() or SHPCreate().</param>
         /// <returns>void</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern void SHPClose(IntPtr hSHP);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPClose")]
+        private static extern void SHPClose64(IntPtr hSHP);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPClose")]
+        private static extern void SHPClose32(IntPtr hSHP);
+
+        public static void SHPClose(IntPtr hSHP)
+        {
+            if (IntPtr.Size == 4)
+                SHPClose32(hSHP);
+            else
+                SHPClose64(hSHP);
+        }
 
         /// <summary>
         /// Translates a ShapeType.* constant into a named shape type (Point, PointZ, Polygon, etc.)
         /// </summary>
         /// <param name="shpType">ShapeType enum</param>
         /// <returns>string</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern string SHPTypeName(ShapeType shpType);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTypeName")]
+        private static extern string SHPTypeName64(ShapeType shpType);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTypeName")]
+        private static extern string SHPTypeName32(ShapeType shpType);
+
+        public static string SHPTypeName(ShapeType shpType)
+        {
+            if (IntPtr.Size == 4)
+               return SHPTypeName32(shpType);
+            else
+               return SHPTypeName64(shpType);
+        }
 
         /// <summary>
         /// Translates a PartType enum into a named part type (Ring, Inner Ring, etc.)
         /// </summary>
         /// <param name="partType">PartType enum</param>
         /// <returns>string</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern string SHPPartTypeName(PartType partType);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPPartTypeName")]
+        private static extern string SHPPartTypeName64(PartType partType);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPPartTypeName")]
+        private static extern string SHPPartTypeName32(PartType partType);
+
+        public static string SHPTypeName(PartType partType)
+        {
+            if (IntPtr.Size == 4)
+                return SHPPartTypeName32(partType);
+            else
+                return SHPPartTypeName64(partType);
+        }
 
         /* -------------------------------------------------------------------- */
         /*      Shape quadtree indexing API.                                    */
@@ -320,17 +450,39 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="adfBoundsMin"></param>
         /// <param name="adfBoundsMax"></param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SHPCreateTree(IntPtr hSHP, int nDimension, int nMaxDepth,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreateTree")]
+        private static extern IntPtr SHPCreateTree64(IntPtr hSHP, int nDimension, int nMaxDepth,
             double[] adfBoundsMin, double[] adfBoundsMax);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCreateTree")]
+        private static extern IntPtr SHPCreateTree32(IntPtr hSHP, int nDimension, int nMaxDepth,
+            double[] adfBoundsMin, double[] adfBoundsMax);
+
+        public static IntPtr SHPCreateTree(IntPtr hSHP, int nDimension, int nMaxDepth,
+            double[] adfBoundsMin, double[] adfBoundsMax)
+        {
+            if (IntPtr.Size == 4)
+                return SHPCreateTree32(hSHP, nDimension, nMaxDepth, adfBoundsMin, adfBoundsMax);
+            else
+                return SHPCreateTree64(hSHP, nDimension, nMaxDepth, adfBoundsMin, adfBoundsMax);
+        }
 
         /// <summary>
         /// Releases resources associated with quadtree
         /// </summary>
         /// <param name="hTree"></param>
         /// <returns>void</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern void SHPDestroyTree(IntPtr hTree);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPDestroyTree")]
+        private static extern void SHPDestroyTree64(IntPtr hTree);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPDestroyTree")]
+        private static extern void SHPDestroyTree32(IntPtr hTree);
+
+        public static void SHPDestroyTree(IntPtr hTree)
+        {
+            if (IntPtr.Size == 4)
+                SHPDestroyTree32(hTree);
+            else
+                SHPDestroyTree64(hTree);
+        }
 
         /// <summary>
         /// 
@@ -338,16 +490,36 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="hTree"></param>
         /// <param name="psObject"></param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int SHPTreeAddShapeId(IntPtr hTree, IntPtr psObject);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTreeAddShapeId")]
+        private static extern int SHPTreeAddShapeId64(IntPtr hTree, IntPtr psObject);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTreeAddShapeId")]
+        private static extern int SHPTreeAddShapeId32(IntPtr hTree, IntPtr psObject);
+
+        public static int SHPTreeAddShapeId(IntPtr hTree, IntPtr psObject)
+        {
+            if (IntPtr.Size == 4)
+                return SHPTreeAddShapeId32(hTree, psObject);
+            else
+                return SHPTreeAddShapeId64(hTree, psObject);
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="hTree"></param>
         /// <returns>void</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern void SHPTreeTrimExtraNodes(IntPtr hTree);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTreeTrimExtraNodes")]
+        private static extern void SHPTreeTrimExtraNodes64(IntPtr hTree);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTreeTrimExtraNodes")]
+        private static extern void SHPTreeTrimExtraNodes32(IntPtr hTree);
+
+        public static void SHPTreeTrimExtraNodes(IntPtr hTree)
+        {
+            if (IntPtr.Size == 4)
+                SHPTreeTrimExtraNodes32(hTree);
+            else
+                SHPTreeTrimExtraNodes64(hTree);
+        }
 
         /// <summary>
         /// 
@@ -357,9 +529,21 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="adfBoundsMax"></param>
         /// <param name="pnShapeCount"></param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SHPTreeFindLikelyShapes(IntPtr hTree,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTreeFindLikelyShapes")]
+        private static extern IntPtr SHPTreeFindLikelyShapes64(IntPtr hTree,
             double[] adfBoundsMin, double[] adfBoundsMax, ref int pnShapeCount);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPTreeFindLikelyShapes")]
+        private static extern IntPtr SHPTreeFindLikelyShapes32(IntPtr hTree,
+            double[] adfBoundsMin, double[] adfBoundsMax, ref int pnShapeCount);
+
+        public static IntPtr SHPTreeFindLikelyShapes(IntPtr hTree,
+            double[] adfBoundsMin, double[] adfBoundsMax, ref int pnShapeCount)
+        {
+            if (IntPtr.Size == 4)
+                return SHPTreeFindLikelyShapes32(hTree, adfBoundsMin, adfBoundsMax, ref pnShapeCount);
+            else
+                return SHPTreeFindLikelyShapes64(hTree, adfBoundsMin, adfBoundsMax, ref pnShapeCount);
+        }
 
         /// <summary>
         /// 
@@ -370,9 +554,21 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="adfBox2Max"></param>
         /// <param name="nDimension"></param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int SHPCheckBoundsOverlap(double[] adfBox1Min, double[] adfBox1Max,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCheckBoundsOverlap")]
+        private static extern int SHPCheckBoundsOverlap64(double[] adfBox1Min, double[] adfBox1Max,
             double[] adfBox2Min, double[] adfBox2Max, int nDimension);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "SHPCheckBoundsOverlap")]
+        private static extern int SHPCheckBoundsOverlap32(double[] adfBox1Min, double[] adfBox1Max,
+            double[] adfBox2Min, double[] adfBox2Max, int nDimension);
+
+        public static int SHPCheckBoundsOverlap(double[] adfBox1Min, double[] adfBox1Max,
+            double[] adfBox2Min, double[] adfBox2Max, int nDimension)
+        {
+            if (IntPtr.Size == 4)
+                return SHPCheckBoundsOverlap32(adfBox1Min, adfBox1Max, adfBox2Min, adfBox2Max, nDimension);
+            else
+                return SHPCheckBoundsOverlap64(adfBox1Min, adfBox1Max, adfBox2Min, adfBox2Max, nDimension);
+        }
 
         /// <summary>
         /// xBase field type enumeration
@@ -404,8 +600,18 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="szAccess">The fopen() style access string. At this time only "rb" (read-only binary) 
         /// and "rb+" (read/write binary) should be used.</param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr DBFOpen(string szDBFFile, string szAccess);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFOpen")]
+        private static extern IntPtr DBFOpen64(string szDBFFile, string szAccess);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFOpen")]
+        private static extern IntPtr DBFOpen32(string szDBFFile, string szAccess);
+
+        public static IntPtr DBFOpen(string szDBFFile, string szAccess)
+        {
+            if (IntPtr.Size == 4)
+                return DBFOpen32(szDBFFile, szAccess);
+            else
+                return DBFOpen64(szDBFFile, szAccess);
+        }
 
         /// <summary>
         /// The DBFCreate() function creates a new xBase format file with the given name, 
@@ -415,8 +621,18 @@ namespace Mercator.GIS.Map.Tools
         /// </summary>
         /// <param name="szDBFFile">The name of the xBase (.dbf) file to create.</param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr DBFCreate(string szDBFFile);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFCreate")]
+        private static extern IntPtr DBFCreate64(string szDBFFile);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFCreate")]
+        private static extern IntPtr DBFCreate32(string szDBFFile);
+
+        public static IntPtr DBFCreate(string szDBFFile)
+        {
+            if (IntPtr.Size == 4)
+                return DBFCreate32(szDBFFile);
+            else
+                return DBFCreate64(szDBFFile);
+        }
 
         /// <summary>
         /// The DBFGetFieldCount() function returns the number of fields currently defined 
@@ -425,8 +641,18 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="hDBF">The access handle for the file to be queried, as returned by 
         /// DBFOpen(), or DBFCreate().</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFGetFieldCount(IntPtr hDBF);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetFieldCount")]
+        private static extern int DBFGetFieldCount64(IntPtr hDBF);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetFieldCount")]
+        private static extern int DBFGetFieldCount32(IntPtr hDBF);
+
+        public static int DBFGetFieldCount(IntPtr hDBF)
+        {
+            if (IntPtr.Size == 4)
+                return DBFGetFieldCount32(hDBF);
+            else
+                return DBFGetFieldCount64(hDBF);
+        }
 
         /// <summary>
         /// The DBFGetRecordCount() function returns the number of records that exist on the xBase 
@@ -436,8 +662,18 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="hDBF">The access handle for the file to be queried, as returned by 
         /// DBFOpen(), or DBFCreate().</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFGetRecordCount(IntPtr hDBF);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetRecordCount")]
+        private static extern int DBFGetRecordCount64(IntPtr hDBF);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetRecordCount")]
+        private static extern int DBFGetRecordCount32(IntPtr hDBF);
+
+        public static int DBFGetRecordCount(IntPtr hDBF)
+        {
+            if (IntPtr.Size == 4)
+                return DBFGetRecordCount32(hDBF);
+            else
+                return DBFGetRecordCount64(hDBF);
+        }
 
         /// <summary>
         /// The DBFAddField() function is used to add new fields to an existing xBase file opened with DBFOpen(), 
@@ -460,9 +696,21 @@ namespace Mercator.GIS.Map.Tools
         /// For all other field types this should be zero. For instance with nWidth=7, and nDecimals=3 
         /// numbers would be formatted similarly to `123.456'.</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFAddField(IntPtr hDBF, string szFieldName,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFAddField")]
+        private static extern int DBFAddField64(IntPtr hDBF, string szFieldName,
             DBFFieldType eType, int nWidth, int nDecimals);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFAddField")]
+        private static extern int DBFAddField32(IntPtr hDBF, string szFieldName,
+            DBFFieldType eType, int nWidth, int nDecimals);
+
+        public static int DBFAddField(IntPtr hDBF, string szFieldName,
+            DBFFieldType eType, int nWidth, int nDecimals)
+        {
+            if (IntPtr.Size == 4)
+                return DBFAddField32(hDBF, szFieldName, eType, nWidth, nDecimals);
+            else
+                return DBFAddField64(hDBF, szFieldName, eType, nWidth, nDecimals);
+        }
 
         /// <summary>
         /// The DBFGetFieldInfo() returns the type of the requested field, which is one of the DBFFieldType 
@@ -483,9 +731,21 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="pnDecimals">If this pointer is not NULL, the number of decimal places precision 
         /// defined for the field will be returned. This is zero for integer fields, or non-numeric fields.</param>
         /// <returns>DBFFieldType</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern DBFFieldType DBFGetFieldInfo(IntPtr hDBF, int iField,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetFieldInfo")]
+        private static extern DBFFieldType DBFGetFieldInfo64(IntPtr hDBF, int iField,
             StringBuilder szFieldName, ref int pnWidth, ref int pnDecimals);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetFieldInfo")]
+        private static extern DBFFieldType DBFGetFieldInfo32(IntPtr hDBF, int iField,
+            StringBuilder szFieldName, ref int pnWidth, ref int pnDecimals);
+
+        public static DBFFieldType DBFGetFieldInfo(IntPtr hDBF, int iField,
+            StringBuilder szFieldName, ref int pnWidth, ref int pnDecimals)
+        {
+            if (IntPtr.Size == 4)
+                return DBFGetFieldInfo32(hDBF, iField, szFieldName, ref pnWidth, ref pnDecimals);
+            else
+                return DBFGetFieldInfo64(hDBF, iField, szFieldName, ref pnWidth, ref pnDecimals);
+        }
 
         /// <summary>
         /// Returns the index of the field matching this name, or -1 on failure. 
@@ -495,8 +755,18 @@ namespace Mercator.GIS.Map.Tools
         /// by DBFOpen(), or DBFCreate().</param>
         /// <param name="szFieldName">Name of the field to search for.</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFGetFieldIndex(IntPtr hDBF, string szFieldName);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetFieldIndex")]
+        private static extern int DBFGetFieldIndex64(IntPtr hDBF, string szFieldName);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetFieldIndex")]
+        private static extern int DBFGetFieldIndex32(IntPtr hDBF, string szFieldName);
+
+        public static int DBFGetFieldIndex(IntPtr hDBF, string szFieldName)
+        {
+            if (IntPtr.Size == 4)
+                return DBFGetFieldIndex32(hDBF, szFieldName);
+            else
+                return DBFGetFieldIndex64(hDBF, szFieldName);
+        }
 
         /// <summary>
         /// The DBFReadIntegerAttribute() will read the value of one field and return it as an integer. 
@@ -510,11 +780,23 @@ namespace Mercator.GIS.Map.Tools
         /// This can be used even with FTString fields, though the returned value will be zero if not 
         /// interpretable as a number.
         /// </remarks>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFReadIntegerAttribute(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadIntegerAttribute")]
+        public static extern int DBFReadIntegerAttribute64(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadIntegerAttribute")]
+        public static extern int DBFReadIntegerAttribute32(IntPtr hDBF, int iShape, int iField);
 
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadDateAttribute")]
-        private static extern int _DBFReadDateAttribute(IntPtr hDBF, int iShape, int iField);
+        public static int DBFReadIntegerAttribute(IntPtr hDBF, int iShape, int iField)
+        {
+            if (IntPtr.Size == 4)
+                return DBFReadIntegerAttribute32(hDBF, iShape, iField);
+            else
+                return DBFReadIntegerAttribute64(hDBF, iShape, iField);
+        }
+
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadDateAttribute")]
+        private static extern int DBFReadDateAttribute64(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadDateAttribute")]
+        private static extern int DBFReadDateAttribute32(IntPtr hDBF, int iShape, int iField);
         /// <summary>
         /// The DBFReadDateAttribute() will read the value of one field and return it as a System.DateTime value.
         /// </summary>
@@ -529,7 +811,12 @@ namespace Mercator.GIS.Map.Tools
         /// </remarks>
         public static DateTime DBFReadDateAttribute(IntPtr hDBF, int iShape, int iField)
         {
-            string sDate = _DBFReadDateAttribute(hDBF, iShape, iField).ToString();
+            string sDate;
+
+            if (IntPtr.Size == 4)
+                sDate = DBFReadDateAttribute32(hDBF, iShape, iField).ToString();
+            else
+                sDate = DBFReadDateAttribute64(hDBF, iShape, iField).ToString();
 
             try
             {
@@ -555,11 +842,23 @@ namespace Mercator.GIS.Map.Tools
         /// This can be used even with FTString fields, though the returned value will be zero if not 
         /// interpretable as a number.
         /// </remarks>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern double DBFReadDoubleAttribute(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadDoubleAttribute")]
+        private static extern double DBFReadDoubleAttribute64(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadDoubleAttribute")]
+        private static extern double DBFReadDoubleAttribute32(IntPtr hDBF, int iShape, int iField);
 
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadStringAttribute")]
-        private static extern IntPtr _DBFReadStringAttribute(IntPtr hDBF, int iShape, int iField);
+        public static double DBFReadDoubleAttribute(IntPtr hDBF, int iShape, int iField)
+        {
+            if (IntPtr.Size == 4)
+                return DBFReadDoubleAttribute32(hDBF, iShape, iField);
+            else
+                return DBFReadDoubleAttribute64(hDBF, iShape, iField);
+        }
+
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadStringAttribute")]
+        private static extern IntPtr DBFReadStringAttribute64(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadStringAttribute")]
+        private static extern IntPtr DBFReadStringAttribute32(IntPtr hDBF, int iShape, int iField);
         /// <summary>
         /// The DBFReadStringAttribute() will read the value of one field and return it as a string. 
         /// </summary>
@@ -578,14 +877,41 @@ namespace Mercator.GIS.Map.Tools
         /// </remarks>
         public static string DBFReadStringAttribute(IntPtr hDBF, int iShape, int iField)
         {
-            var bytes = Encoding.Unicode.GetBytes(Marshal.PtrToStringUni(_DBFReadStringAttribute(hDBF, iShape, iField), 255));
+            IntPtr stringAnsi;
+
+            if (IntPtr.Size == 4)
+                stringAnsi = DBFReadStringAttribute32(hDBF, iShape, iField);
+            else
+                stringAnsi = DBFReadStringAttribute64(hDBF, iShape, iField);
+
+            if (stringAnsi == IntPtr.Zero) { return string.Empty; }
+            var stringUni = Marshal.PtrToStringUni(stringAnsi, 255);
+            if (string.IsNullOrEmpty(stringUni)) { return string.Empty; }
+
+            var bytes = Encoding.Unicode.GetBytes(stringUni);
             var attribute = Encoding.UTF8.GetString(bytes);
             var index = attribute.IndexOf('\0');
             return index > 0 ? attribute.Substring(0, index).Trim() : string.Empty;
         }
 
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadLogicalAttribute")]
-        private static extern string _DBFReadLogicalAttribute(IntPtr hDBF, int iShape, int iField);
+        public static string DBFReadAnsiStringAttribute(IntPtr hDBF, int iShape, int iField)
+        {
+            IntPtr stringAnsi;
+
+            if (IntPtr.Size == 4)
+                stringAnsi = DBFReadStringAttribute32(hDBF, iShape, iField);
+            else
+                stringAnsi = DBFReadStringAttribute64(hDBF, iShape, iField);
+
+            if (stringAnsi == IntPtr.Zero) { return string.Empty; }
+            var attributeAnsi = Marshal.PtrToStringAnsi(stringAnsi);
+            return attributeAnsi;
+        }
+
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadLogicalAttribute")]
+        private static extern string DBFReadLogicalAttribute64(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadLogicalAttribute")]
+        private static extern string DBFReadLogicalAttribute32(IntPtr hDBF, int iShape, int iField);
         /// <summary>
         /// The DBFReadLogicalAttribute() will read the value of one field and return it as a boolean. 
         /// </summary>
@@ -600,7 +926,10 @@ namespace Mercator.GIS.Map.Tools
         /// </remarks>
         public static bool DBFReadLogicalAttribute(IntPtr hDBF, int iShape, int iField)
         {
-            return (_DBFReadLogicalAttribute(hDBF, iShape, iField) == "T");
+            if (IntPtr.Size == 4)
+                return (DBFReadLogicalAttribute32(hDBF, iShape, iField) == "T");
+            else
+                return (DBFReadLogicalAttribute64(hDBF, iShape, iField) == "T");
         }
 
         /// <summary>
@@ -616,8 +945,18 @@ namespace Mercator.GIS.Map.Tools
         /// Reading NULL fields will result in a value of 0.0 or an empty string with the other 
         /// DBFRead*Attribute() functions.
         /// </remarks>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFIsAttributeNULL(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFIsAttributeNULL")]
+        private static extern int DBFIsAttributeNULL64(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFIsAttributeNULL")]
+        private static extern int DBFIsAttributeNULL32(IntPtr hDBF, int iShape, int iField);
+
+        public static int DBFIsAttributeNULL(IntPtr hDBF, int iShape, int iField)
+        {
+            if (IntPtr.Size == 4)
+                return DBFIsAttributeNULL32(hDBF, iShape, iField);
+            else
+                return DBFIsAttributeNULL64(hDBF, iShape, iField);
+        }
 
         /// <summary>
         /// The DBFWriteIntegerAttribute() function is used to write a value to a numeric field 
@@ -631,9 +970,21 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="iField">The field within the selected record that should be written.</param>
         /// <param name="nFieldValue">The integer value that should be written.</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFWriteIntegerAttribute(IntPtr hDBF, int iShape,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteIntegerAttribute")]
+        private static extern int DBFWriteIntegerAttribute64(IntPtr hDBF, int iShape,
             int iField, int nFieldValue);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteIntegerAttribute")]
+        private static extern int DBFWriteIntegerAttribute32(IntPtr hDBF, int iShape,
+            int iField, int nFieldValue);
+
+        public static int DBFWriteIntegerAttribute(IntPtr hDBF, int iShape,
+            int iField, int nFieldValue)
+        {
+            if (IntPtr.Size == 4)
+                return DBFWriteIntegerAttribute32(hDBF, iShape, iField, nFieldValue);
+            else
+                return DBFWriteIntegerAttribute64(hDBF, iShape, iField, nFieldValue);
+        }
 
         /// <summary>
         /// Write an attribute record to the file, but without any reformatting based on type.  
@@ -647,12 +998,28 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="iField">The field within the selected record that should be written.</param>
         /// <param name="pValue">pointer to the value</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFWriteAttributeDirectly(IntPtr hDBF, int iShape,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteAttributeDirectly")]
+        private static extern int DBFWriteAttributeDirectly64(IntPtr hDBF, int iShape,
+            int iField, IntPtr pValue);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteAttributeDirectly")]
+        private static extern int DBFWriteAttributeDirectly32(IntPtr hDBF, int iShape,
             int iField, IntPtr pValue);
 
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteDateAttribute")]
-        private static extern int _DBFWriteDateAttribute(IntPtr hDBF, int iShape,
+        public static int DBFWriteAttributeDirectly(IntPtr hDBF, int iShape,
+            int iField, IntPtr pValue)
+        {
+            if (IntPtr.Size == 4)
+                return DBFWriteAttributeDirectly32(hDBF, iShape, iField, pValue);
+            else
+                return DBFWriteAttributeDirectly64(hDBF, iShape, iField, pValue);
+        }
+
+
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteDateAttribute")]
+        private static extern int DBFWriteDateAttribute64(IntPtr hDBF, int iShape,
+            int iField, int nFieldValue);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteDateAttribute")]
+        private static extern int DBFWriteDateAttribute32(IntPtr hDBF, int iShape,
             int iField, int nFieldValue);
         /// <summary>
         /// The DBFWriteDateAttribute() function is used to write a value to a date field 
@@ -669,7 +1036,10 @@ namespace Mercator.GIS.Map.Tools
         public static int DBFWriteDateAttribute(IntPtr hDBF, int iShape,
             int iField, DateTime nFieldValue)
         {
-            return _DBFWriteDateAttribute(hDBF, iShape, iField, int.Parse(nFieldValue.ToString("yyyyMMdd")));
+            if (IntPtr.Size == 4)
+                return DBFWriteDateAttribute32(hDBF, iShape, iField, int.Parse(nFieldValue.ToString("yyyyMMdd")));
+            else
+                return DBFWriteDateAttribute64(hDBF, iShape, iField, int.Parse(nFieldValue.ToString("yyyyMMdd")));
         }
 
         /// <summary>
@@ -684,9 +1054,21 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="iField">The field within the selected record that should be written.</param>
         /// <param name="dFieldValue">The floating point value that should be written.</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFWriteDoubleAttribute(IntPtr hDBF, int iShape,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteDoubleAttribute")]
+        private static extern int DBFWriteDoubleAttribute64(IntPtr hDBF, int iShape,
             int iField, double dFieldValue);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteDoubleAttribute")]
+        private static extern int DBFWriteDoubleAttribute32(IntPtr hDBF, int iShape,
+            int iField, double dFieldValue);
+
+        public static int DBFWriteDoubleAttribute(IntPtr hDBF, int iShape,
+            int iField, double dFieldValue)
+        {
+            if (IntPtr.Size == 4)
+                return DBFWriteDoubleAttribute32(hDBF, iShape, iField, dFieldValue);
+            else
+                return DBFWriteDoubleAttribute64(hDBF, iShape, iField, dFieldValue);
+        }
 
         /// <summary>
         /// The DBFWriteStringAttribute() function is used to write a value to a string field (FString). 
@@ -699,9 +1081,21 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="iField">The field within the selected record that should be written.</param>
         /// <param name="szFieldValue">The string to be written to the field.</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFWriteStringAttribute(IntPtr hDBF, int iShape,
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteStringAttribute")]
+        private static extern int DBFWriteStringAttribute64(IntPtr hDBF, int iShape,
             int iField, string szFieldValue);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteStringAttribute")]
+        private static extern int DBFWriteStringAttribute32(IntPtr hDBF, int iShape,
+            int iField, string szFieldValue);
+
+        public static int DBFWriteStringAttribute(IntPtr hDBF, int iShape,
+            int iField, string szFieldValue)
+        {
+            if (IntPtr.Size == 4)
+                return DBFWriteStringAttribute32(hDBF, iShape, iField, szFieldValue);
+            else
+                return DBFWriteStringAttribute64(hDBF, iShape, iField, szFieldValue);
+        }
 
         /// <summary>
         /// The DBFWriteNULLAttribute() function is used to clear the indicated field to a NULL value. 
@@ -713,11 +1107,24 @@ namespace Mercator.GIS.Map.Tools
         /// <param name="iShape">The record number (shape number) to which the field value should be written.</param>
         /// <param name="iField">The field within the selected record that should be written.</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFWriteNULLAttribute(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteNULLAttribute")]
+        private static extern int DBFWriteNULLAttribute64(IntPtr hDBF, int iShape, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteNULLAttribute")]
+        private static extern int DBFWriteNULLAttribute32(IntPtr hDBF, int iShape, int iField);
 
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteLogicalAttribute")]
-        private static extern int _DBFWriteLogicalAttribute(IntPtr hDBF, int iShape,
+        public static int DBFWriteNULLAttribute(IntPtr hDBF, int iShape, int iField)
+        {
+            if (IntPtr.Size == 4)
+                return DBFWriteNULLAttribute32(hDBF, iShape, iField);
+            else
+                return DBFWriteNULLAttribute64(hDBF, iShape, iField);
+        }
+
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteLogicalAttribute")]
+        private static extern int DBFWriteLogicalAttribute64(IntPtr hDBF, int iShape,
+            int iField, char lFieldValue);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteLogicalAttribute")]
+        private static extern int DBFWriteLogicalAttribute32(IntPtr hDBF, int iShape,
             int iField, char lFieldValue);
         /// <summary>
         /// The DBFWriteLogicalAttribute() function is used to write a boolean value to a logical field 
@@ -732,10 +1139,20 @@ namespace Mercator.GIS.Map.Tools
         /// <returns>int</returns>
         public static int DBFWriteLogicalAttribute(IntPtr hDBF, int iShape, int iField, bool bFieldValue)
         {
-            if (bFieldValue)
-                return _DBFWriteLogicalAttribute(hDBF, iShape, iField, 'T');
+            if (IntPtr.Size == 4)
+            {
+                if (bFieldValue)
+                    return DBFWriteLogicalAttribute32(hDBF, iShape, iField, 'T');
+                else
+                    return DBFWriteLogicalAttribute32(hDBF, iShape, iField, 'F');
+            }
             else
-                return _DBFWriteLogicalAttribute(hDBF, iShape, iField, 'F');
+            {
+                if (bFieldValue)
+                    return DBFWriteLogicalAttribute64(hDBF, iShape, iField, 'T');
+                else
+                    return DBFWriteLogicalAttribute64(hDBF, iShape, iField, 'F');
+            }
         }
 
         /// <summary>
@@ -745,8 +1162,18 @@ namespace Mercator.GIS.Map.Tools
         /// DBFOpen(), or DBFCreate().</param>
         /// <param name="hEntity">The entity (record) number to be read</param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr DBFReadTuple(IntPtr hDBF, int hEntity);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadTuple")]
+        private static extern IntPtr DBFReadTuple64(IntPtr hDBF, int hEntity);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFReadTuple")]
+        private static extern IntPtr DBFReadTuple32(IntPtr hDBF, int hEntity);
+
+        public static IntPtr DBFReadTuple(IntPtr hDBF, int hEntity)
+        {
+            if (IntPtr.Size == 4)
+                return DBFReadTuple32(hDBF, hEntity);
+            else
+                return DBFReadTuple64(hDBF, hEntity);
+        }
 
         /// <summary>
         /// Writes an attribute record to the file.
@@ -757,8 +1184,18 @@ namespace Mercator.GIS.Map.Tools
         /// the number of records a new record is appended.</param>
         /// <param name="pRawTuple">Pointer to the tuple to be written</param>
         /// <returns>int</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern int DBFWriteTuple(IntPtr hDBF, int hEntity, IntPtr pRawTuple);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteTuple")]
+        private static extern int DBFWriteTuple64(IntPtr hDBF, int hEntity, IntPtr pRawTuple);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFWriteTuple")]
+        private static extern int DBFWriteTuple32(IntPtr hDBF, int hEntity, IntPtr pRawTuple);
+
+        public static int DBFWriteTuple(IntPtr hDBF, int hEntity, IntPtr pRawTuple)
+        {
+            if (IntPtr.Size == 4)
+                return DBFWriteTuple32(hDBF, hEntity, pRawTuple);
+            else
+                return DBFWriteTuple64(hDBF, hEntity, pRawTuple);
+        }
 
         /// <summary>
         /// Copies the data structure of an xBase file to another xBase file.  
@@ -768,8 +1205,18 @@ namespace Mercator.GIS.Map.Tools
         /// DBFOpen(), or DBFCreate().</param>
         /// <param name="szFilename">The name of the xBase (.dbf) file to create.</param>
         /// <returns>IntPtr</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr DBFCloneEmpty(IntPtr hDBF, string szFilename);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFCloneEmpty")]
+        private static extern IntPtr DBFCloneEmpty64(IntPtr hDBF, string szFilename);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFCloneEmpty")]
+        private static extern IntPtr DBFCloneEmpty32(IntPtr hDBF, string szFilename);
+
+        public static IntPtr DBFCloneEmpty(IntPtr hDBF, string szFilename)
+        {
+            if (IntPtr.Size == 4)
+                return DBFCloneEmpty32(hDBF, szFilename);
+            else
+                return DBFCloneEmpty64(hDBF, szFilename);
+        }
 
         /// <summary>
         /// The DBFClose() function will close the indicated xBase file (opened with DBFOpen(), 
@@ -779,8 +1226,18 @@ namespace Mercator.GIS.Map.Tools
         /// </summary>
         /// <param name="hDBF">The access handle for the file to be closed.</param>
         /// <returns>void</returns>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern void DBFClose(IntPtr hDBF);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFClose")]
+        private static extern void DBFClose64(IntPtr hDBF);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFClose")]
+        private static extern void DBFClose32(IntPtr hDBF);
+
+        public static void DBFClose(IntPtr hDBF, string szFilename)
+        {
+            if (IntPtr.Size == 4)
+                DBFClose32(hDBF);
+            else
+                DBFClose64(hDBF);
+        }
 
 
         /// <summary>
@@ -801,8 +1258,18 @@ namespace Mercator.GIS.Map.Tools
         /// <item><term> </term><description>field out of range</description></item>
         /// </list>
         /// </remarks>
-        [DllImport("shapelib.dll", CharSet = CharSet.Ansi)]
-        public static extern sbyte DBFGetNativeFieldType(IntPtr hDBF, int iField);
+        [DllImport("shapelib_x64.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetNativeFieldType")]
+        private static extern sbyte DBFGetNativeFieldType64(IntPtr hDBF, int iField);
+        [DllImport("shapelib_x86.dll", CharSet = CharSet.Ansi, EntryPoint = "DBFGetNativeFieldType")]
+        private static extern sbyte DBFGetNativeFieldType32(IntPtr hDBF, int iField);
+
+        public static sbyte DBFGetNativeFieldType(IntPtr hDBF, int iField)
+        {
+            if (IntPtr.Size == 4)
+                return DBFGetNativeFieldType32(hDBF, iField);
+            else
+                return DBFGetNativeFieldType64(hDBF, iField);
+        }
 
         /// <summary>
         /// private constructor:  no instantiation needed or permitted
